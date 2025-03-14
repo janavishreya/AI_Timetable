@@ -1,97 +1,84 @@
-import React, { useState } from 'react';
-import { departments, rooms, timeSlots, days, facultyMembers, courses } from '../../../data/adminData';
+import React, { useState } from "react";
+import {
+  departments,
+  rooms,
+  facultyMembers,
+  courses,
+} from "../../../data/adminData";
 
 function TimetableGenerator({ onGenerateTimetable }) {
-  const [department, setDepartment] = useState('');
-  const [semester, setSemester] = useState('');
-  const [selectedCourses, setSelectedCourses] = useState([]);
-  const [timetableName, setTimetableName] = useState('');
+  const [selectedFaculty, setSelectedFaculty] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [courseClassroomPairs, setCourseClassroomPairs] = useState([{ course: "", classroom: "" }]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const filteredCourses = courses.filter(course => 
-    (!department || course.department === department) &&
-    (!semester || course.semester === semester)
-  );
-
- 
-  const handleCourseSelection = (e) => {
-    const courseId = e.target.value;
-    if (e.target.checked) {
-      setSelectedCourses([...selectedCourses, courseId]);
-    } else {
-      setSelectedCourses(selectedCourses.filter(id => id !== courseId));
-    }
+  // Handle Faculty Selection & Auto-fill Department
+  const handleFacultyChange = (e) => {
+    const facultyName = e.target.value;
+    setSelectedFaculty(facultyName);
+    const faculty = facultyMembers.find((f) => f.name === facultyName);
+    setSelectedDepartment(faculty ? faculty.department : "");
   };
 
+  // Handle Course Selection
+  const handleCourseChange = (index, selectedCourse) => {
+    const updatedPairs = [...courseClassroomPairs];
+    updatedPairs[index].course = selectedCourse;
+    setCourseClassroomPairs(updatedPairs);
+  };
 
+  // Handle Classroom Selection
+  const handleClassroomChange = (index, selectedRoom) => {
+    const updatedPairs = [...courseClassroomPairs];
+    updatedPairs[index].classroom = selectedRoom;
+    setCourseClassroomPairs(updatedPairs);
+  };
+
+  // Add More Course-Classroom Pair
+  const handleAddMore = () => {
+    setCourseClassroomPairs([...courseClassroomPairs, { course: "", classroom: "" }]);
+  };
+
+  // Handle Form Submission (Generate Timetable)
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    if (!timetableName) {
-      alert('Please enter a name for the timetable');
+    if (!selectedFaculty) {
+      alert("Please select a faculty member.");
       return;
     }
-    
-    if (selectedCourses.length === 0) {
-      alert('Please select at least one course');
+
+    if (courseClassroomPairs.some(pair => !pair.course || !pair.classroom)) {
+      alert("Please select both course and classroom for all entries.");
       return;
     }
-    
- 
-    
+
     setIsLoading(true);
-    
-    // In a real application, this would be a complex algorithm
-    // For demo purposes, we'll create a simple timetable
+
     setTimeout(() => {
       const generatedTimetable = {
-        name: timetableName,
-        department: department,
-        semester: semester,
+        faculty: selectedFaculty,
+        department: selectedDepartment,
         createdOn: new Date().toLocaleDateString(),
-        schedule: generateMockSchedule()
+        schedule: courseClassroomPairs,
       };
       
       setIsLoading(false);
       onGenerateTimetable(generatedTimetable);
     }, 1500);
   };
-  
-  // Generate a mock schedule for demonstration
-  const generateMockSchedule = () => {
-    const schedule = {};
-    
-    days.forEach(day => {
-      schedule[day] = {};
-      timeSlots.forEach(timeSlot => {
-        schedule[day][timeSlot] = [];
-      });
-    });
-    
-    // Assign courses to time slots
-    let courseIndex = 0;
-  
-    selectedCourses.forEach(courseId => {
-      const course = courses.find(c => c.id === courseId);
-      const day = days[courseIndex % days.length];
-      const timeSlot = timeSlots[courseIndex % timeSlots.length];
-      
-      schedule[day][timeSlot].push({
-        courseId: course.id,
-        courseName: course.name
-      });
-      
-      courseIndex++;
-      
-    });
-    
-    return schedule;
+
+  // Reset Form
+  const handleReset = () => {
+    setSelectedFaculty("");
+    setSelectedDepartment("");
+    setCourseClassroomPairs([{ course: "", classroom: "" }]);
   };
 
   return (
     <section className="dashboard-section">
       <h2>Timetable Generator</h2>
-      
+
       {isLoading ? (
         <div className="loading-container">
           <p>Generating timetable... Please wait.</p>
@@ -99,86 +86,67 @@ function TimetableGenerator({ onGenerateTimetable }) {
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="timetable-generator-form">
-          <div className="form-section">
-            <h3>Timetable Information</h3>
+          {/* Faculty & Department Selection */}
+          <div className="form-row">
             <div className="form-group">
-              <label htmlFor="timetable-name">Timetable Name</label>
-              <input 
-                type="text" 
-                id="timetable-name" 
-                value={timetableName}
-                onChange={(e) => setTimetableName(e.target.value)}
-                placeholder="e.g., Fall Semester 2023"
-                required
-              />
+              <label>Faculty Name</label>
+              <select value={selectedFaculty} onChange={handleFacultyChange}>
+                <option value="">Select Faculty</option>
+                {facultyMembers.map((faculty) => (
+                  <option key={faculty.name} value={faculty.name}>
+                    {faculty.name}
+                  </option>
+                ))}
+              </select>
             </div>
-            
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="department">Department</label>
-                <select 
-                  id="department" 
-                  value={department}
-                  onChange={(e) => setDepartment(e.target.value)}
-                >
-                  <option value="">All Departments</option>
-                  {departments.map(dept => (
-                    <option key={dept} value={dept}>{dept}</option>
-                  ))}
-                </select>
-              </div>
-              
-              <div className="form-group">
-                <label htmlFor="semester">Semester</label>
-                <select 
-                  id="semester" 
-                  value={semester}
-                  onChange={(e) => setSemester(e.target.value)}
-                >
-                  <option value="">All Semesters</option>
-                  <option value="1st">1st Semester</option>
-                  <option value="2nd">2nd Semester</option>
-                  <option value="3rd">3rd Semester</option>
-                  <option value="4th">4th Semester</option>
-                  <option value="5th">5th Semester</option>
-                  <option value="6th">6th Semester</option>
-                  <option value="7th">7th Semester</option>
-                  <option value="8th">8th Semester</option>
-                </select>
-              </div>
+
+            <div className="form-group">
+              <label>Department</label>
+              <input type="text" value={selectedDepartment} disabled />
             </div>
           </div>
-          
-          <div className="form-section">
-            <h3>Select Courses</h3>
-            <div className="checkbox-grid">
-              {filteredCourses.map(course => (
-                <div key={course.id} className="checkbox-item">
-                  <input 
-                    type="checkbox" 
-                    id={`course-${course.id}`} 
-                    value={course.id}
-                    onChange={handleCourseSelection}
-                    checked={selectedCourses.includes(course.id)}
-                  />
-                  <label htmlFor={`course-${course.id}`}>
-                    {course.name} ({course.id})
-                  </label>
-                </div>
-              ))}
-            </div>
+
+          {/* Course & Classroom Selection */}
+          {courseClassroomPairs.map((pair, index) => (
+  <div key={index} className="centered">
+    <div className="small-width">
+      <select value={pair.course} onChange={(e) => handleCourseChange(index, e.target.value)}>
+        <option value="">Select Course</option>
+        {courses.map((course) => (
+          <option key={course.name} value={course.name}>
+            {course.name}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    <span className="arrow">→</span>
+
+    <div className="small-width">
+      <select value={pair.classroom} onChange={(e) => handleClassroomChange(index, e.target.value)}>
+        <option value="">Select Classroom</option>
+        {rooms.map((room) => (
+          <option key={room} value={room}>
+            {room}
+          </option>
+        ))}
+      </select>
+    </div>
+  </div>
+))}
+
+
+          {/* Add More Button (Smaller & Centered) */}
+          <div className="add-more-container">
+            <button type="button" onClick={handleAddMore} className="btn btn-small">
+              + Add More
+            </button>
           </div>
-          
-          
-          
+
+          {/* Form Actions */}
           <div className="form-actions">
             <button type="submit" className="btn">Generate Timetable</button>
-            <button type="button" className="btn btn-secondary" onClick={() => {
-              setDepartment('');
-              setSemester('');
-              setSelectedCourses([]);
-              setTimetableName('');
-            }}>
+            <button type="button" className="btn btn-secondary" onClick={handleReset}>
               Reset Form
             </button>
           </div>

@@ -452,6 +452,62 @@ header h1 {
   width: auto;
 }
 
+.small-width select {
+  width: 180px; /* Adjust dropdown width */
+}
+
+/* Center the entire row containing the dropdowns */
+.centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px; /* Space between elements */
+  margin-top: 10px;
+}
+
+/* Increase width and add rounded corners */
+.small-width select {
+  width: 220px;  /* Increased width */
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 8px; /* Rounded corners */
+  border: 1px solid #ccc;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+/* Style for arrow symbol */
+.arrow {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+/* Add More Button centered below the dropdowns */
+.add-more-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.btn-small {
+  padding: 6px 12px;
+  font-size: 15px;
+  border-radius: 6px; /* Rounded button */
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  width: 200px;
+}
+
+.btn-small:hover {
+  background-color: #0056b3;
+}
+
+
+
+
+
 /* Loading Spinner */
 .loading-container {
   display: flex;
