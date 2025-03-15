@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 
-// Register User (Admin or User)
+// Register User
 exports.register = async (req, res) => {
   const { username, password, role } = req.body;
   try {
@@ -23,13 +23,10 @@ exports.login = async (req, res) => {
   const { username, password } = req.body;
   try {
     const user = await User.findOne({ username });
-    console.log("Found User:", user); // Debugging
 
     if (!user) return res.status(400).json({ message: "User not found" });
 
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log("Password Match:", isMatch); // Debugging
-
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
     req.session.user = { id: user._id, username: user.username, role: user.role };
@@ -39,10 +36,18 @@ exports.login = async (req, res) => {
   }
 };
 
-
 // Logout User
 exports.logout = (req, res) => {
   req.session.destroy(() => {
     res.status(200).json({ message: "Logged out successfully" });
   });
+};
+
+// Check Session
+exports.checkSession = async (req, res) => {
+  if (req.session.user) {
+    res.status(200).json({ user: req.session.user });
+  } else {
+    res.status(401).json({ message: "No active session" });
+  }
 };

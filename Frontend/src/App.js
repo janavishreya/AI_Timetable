@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import Login from './components/Login';
-import Dashboard from './components/Dashboard';
-import AdminDashboard from './components/admin/AdminDashboard';
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Login from "./components/Login";
+import Dashboard from "./components/Dashboard";
+import AdminDashboard from "./components/admin/AdminDashboard";
+import TimetableGenerator from "./components/admin/pages/TimetableGenerator"; // Only this is used
+import TimetableDisplay from "./components/admin/pages/TimetableDisplay";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [userType, setUserType] = useState(null);
-  
+  const [generatedTimetable, setGeneratedTimetable] = useState(null);
+
   // Check session on page load
   useEffect(() => {
     const checkSession = async () => {
@@ -37,12 +41,11 @@ function App() {
       alert("Login failed. Please try again.");
       return;
     }
-  
+
     setIsLoggedIn(true);
     setUser(userData);
     setUserType(userData.role);
   };
-  
 
   const handleLogout = async () => {
     try {
@@ -59,18 +62,37 @@ function App() {
     }
   };
 
+  const handleGenerateTimetable = (timetable) => {
+    setGeneratedTimetable(timetable);
+  };
+
   return (
-    <div className="app">
-      {isLoggedIn ? (
-        userType === 'admin' ? (
-          <AdminDashboard user={user} onLogout={handleLogout} />
-        ) : (
-          <Dashboard user={user} onLogout={handleLogout} />
-        )
-      ) : (
-        <Login onLogin={handleLogin} />
-      )}
-    </div>
+    <Router>
+      <Routes>
+        {/* Public Routes */}
+        <Route
+          path="/"
+          element={
+            isLoggedIn ? (
+              userType === "admin" ? (
+                <AdminDashboard user={user} onLogout={handleLogout}>
+                  <TimetableGenerator onGenerateTimetable={handleGenerateTimetable} />
+                </AdminDashboard>
+              ) : (
+                <Dashboard user={user} onLogout={handleLogout}>
+                  <TimetableGenerator onGenerateTimetable={handleGenerateTimetable} />
+                </Dashboard>
+              )
+            ) : (
+              <Login onLogin={handleLogin} />
+            )
+          }
+        />
+
+        {/* Timetable Display Route */}
+        <Route path="/timetable-display" element={<TimetableDisplay />} />
+      </Routes>
+    </Router>
   );
 }
 

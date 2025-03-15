@@ -7,13 +7,10 @@ const helmet = require("helmet");
 const bodyParser = require("body-parser");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
+const timetableRoutes = require("./routes/timetableRoutes");
 require("dotenv").config();
 const { exec } = require("child_process");
 
-// Initialize Express app
-const app = express();
-
-// Kill existing process on port 5000 (Windows & Unix)
 const PORT = process.env.PORT || 5000;
 exec(`kill $(lsof -t -i:${PORT})`, (err) => {
   if (err) console.log("No existing process found on port", PORT);
@@ -24,6 +21,7 @@ connectDB();
 
 // Allowed origins for CORS
 const allowedOrigins = ["http://localhost:3000"];
+const app = express();
 
 app.use(
   cors({
@@ -39,31 +37,27 @@ app.use(
 );
 
 // Security Middleware
-app.use(helmet()); // Helps secure the app with HTTP headers
+app.use(helmet());
 
 // Body Parsers
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Session Middleware with MongoDB store
+// Session Middleware
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "your_secret_key",
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
-    cookie: {
-      secure: process.env.NODE_ENV === "production", // Secure in production
-      httpOnly: true,
-      sameSite: "lax",
-    },
+    cookie: { secure: false, httpOnly: true, sameSite: "lax" },
   })
 );
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/timetable", timetableRoutes);
 
-// Health check route
 app.get("/", (req, res) => res.send("✅ Server Running..."));
 
 // Global Error Handling

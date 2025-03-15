@@ -1,16 +1,15 @@
 import React, { useState } from "react";
-import {
-  departments,
-  rooms,
-  facultyMembers,
-  courses,
-} from "../../../data/adminData";
+import { useNavigate } from "react-router-dom"; // ✅ Import useNavigate
+import { departments, rooms, facultyMembers, courses } from "../../../data/adminData";
 
 function TimetableGenerator({ onGenerateTimetable }) {
+  const navigate = useNavigate(); // ✅ Initialize navigate function
+
   const [selectedFaculty, setSelectedFaculty] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [courseClassroomPairs, setCourseClassroomPairs] = useState([{ course: "", classroom: "" }]);
   const [isLoading, setIsLoading] = useState(false);
+  const [generatedTimetable, setGeneratedTimetable] = useState(null);
 
   // Handle Faculty Selection & Auto-fill Department
   const handleFacultyChange = (e) => {
@@ -40,9 +39,9 @@ function TimetableGenerator({ onGenerateTimetable }) {
   };
 
   // Handle Form Submission (Generate Timetable)
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!selectedFaculty) {
       alert("Please select a faculty member.");
       return;
@@ -55,17 +54,36 @@ function TimetableGenerator({ onGenerateTimetable }) {
 
     setIsLoading(true);
 
-    setTimeout(() => {
-      const generatedTimetable = {
-        faculty: selectedFaculty,
-        department: selectedDepartment,
-        createdOn: new Date().toLocaleDateString(),
-        schedule: courseClassroomPairs,
-      };
-      
+    // Prepare request payload
+    const requestData = {
+      faculty_name: selectedFaculty,
+      subjects: courseClassroomPairs.map(pair => ({
+        subject: pair.course,
+        room: pair.classroom,
+      })),
+    };
+
+    try {
+      // Send request to Flask backend
+      const response = await fetch("http://localhost:5000/api/timetable/generate_timetable", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestData),
+      });
+
+      const data = await response.json();
       setIsLoading(false);
-      onGenerateTimetable(generatedTimetable);
-    }, 1500);
+
+      if (response.ok) {
+        // ✅ Fix facultyName and navigate to display page
+        navigate("/timetable-display", { state: { faculty_name: selectedFaculty, timetable: data.timetable } });
+      } else {
+        alert("Error generating timetable: " + data.error);
+      }
+    } catch (error) {
+      setIsLoading(false);
+      alert("Failed to fetch timetable. Please try again.");
+    }
   };
 
   // Reset Form
@@ -73,6 +91,7 @@ function TimetableGenerator({ onGenerateTimetable }) {
     setSelectedFaculty("");
     setSelectedDepartment("");
     setCourseClassroomPairs([{ course: "", classroom: "" }]);
+    setGeneratedTimetable(null);
   };
 
   return (
@@ -108,35 +127,34 @@ function TimetableGenerator({ onGenerateTimetable }) {
 
           {/* Course & Classroom Selection */}
           {courseClassroomPairs.map((pair, index) => (
-  <div key={index} className="centered">
-    <div className="small-width">
-      <select value={pair.course} onChange={(e) => handleCourseChange(index, e.target.value)}>
-        <option value="">Select Course</option>
-        {courses.map((course) => (
-          <option key={course.name} value={course.name}>
-            {course.name}
-          </option>
-        ))}
-      </select>
-    </div>
+            <div key={index} className="centered">
+              <div className="small-width">
+                <select value={pair.course} onChange={(e) => handleCourseChange(index, e.target.value)}>
+                  <option value="">Select Course</option>
+                  {courses.map((course) => (
+                    <option key={course.name} value={course.name}>
+                      {course.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-    <span className="arrow">→</span>
+              <span className="arrow">→</span>
 
-    <div className="small-width">
-      <select value={pair.classroom} onChange={(e) => handleClassroomChange(index, e.target.value)}>
-        <option value="">Select Classroom</option>
-        {rooms.map((room) => (
-          <option key={room} value={room}>
-            {room}
-          </option>
-        ))}
-      </select>
-    </div>
-  </div>
-))}
+              <div className="small-width">
+                <select value={pair.classroom} onChange={(e) => handleClassroomChange(index, e.target.value)}>
+                  <option value="">Select Classroom</option>
+                  {rooms.map((room) => (
+                    <option key={room} value={room}>
+                      {room}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          ))}
 
-
-          {/* Add More Button (Smaller & Centered) */}
+          {/* Add More Button */}
           <div className="add-more-container">
             <button type="button" onClick={handleAddMore} className="btn btn-small">
               + Add More
@@ -151,6 +169,35 @@ function TimetableGenerator({ onGenerateTimetable }) {
             </button>
           </div>
         </form>
+      )}
+
+      {/* Display Generated Timetable */}
+      {generatedTimetable && (
+        <div className="generated-timetable">
+          <h3>Generated Timetable for {generatedTimetable.faculty_name}</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Day</th>
+                <th>Schedule</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(generatedTimetable.timetable).map(([day, periods]) => (
+                <tr key={day}>
+                  <td>{day}</td>
+                  <td>
+                    {periods.map((period, index) => (
+                      <span key={index} className="period">
+                        {period ? period : "Free"}
+                      </span>
+                    ))}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </section>
   );

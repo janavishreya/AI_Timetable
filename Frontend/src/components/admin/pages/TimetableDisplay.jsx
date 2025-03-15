@@ -1,26 +1,35 @@
-import React, { useState } from 'react';
-import { days, timeSlots } from '../../../data/adminData';
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { days, timeSlots } from "../../../data/adminData";
 
-function TimetableDisplay({ timetable }) {
+function TimetableDisplay() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { faculty_name, timetable } = location.state || {};
   const [showSaveModal, setShowSaveModal] = useState(false);
-  
+
+  // If timetable is not provided, show an empty state message
   if (!timetable) {
     return (
       <section className="dashboard-section">
         <h2>Timetable Display</h2>
         <div className="empty-state">
           <p>No timetable to display. Please generate a timetable first.</p>
+          <button className="btn btn-primary" onClick={() => navigate("/generate-timetable")}>
+            Generate Timetable
+          </button>
         </div>
       </section>
     );
   }
-  
+
+  // Save Timetable Functionality (Simulated)
   const handleSave = () => {
-    // In a real application, this would save to a database
-    alert('Timetable saved successfully!');
+    alert("Timetable saved successfully!");
     setShowSaveModal(false);
   };
-  
+
+  // Print Timetable Functionality
   const handlePrint = () => {
     window.print();
   };
@@ -28,7 +37,7 @@ function TimetableDisplay({ timetable }) {
   return (
     <section className="dashboard-section timetable-display-section">
       <div className="timetable-header">
-        <h2>Timetable: {timetable.name}</h2>
+        <h2>Generated Timetable for {faculty_name}</h2>
         <div className="timetable-meta">
           {timetable.department && <span><strong>Department:</strong> {timetable.department}</span>}
           {timetable.semester && <span><strong>Semester:</strong> {timetable.semester}</span>}
@@ -37,26 +46,30 @@ function TimetableDisplay({ timetable }) {
         <div className="timetable-actions">
           <button className="btn btn-small" onClick={() => setShowSaveModal(true)}>Save Timetable</button>
           <button className="btn btn-small" onClick={handlePrint}>Print Timetable</button>
+          <button className="btn btn-secondary btn-small" onClick={() => navigate("/generate-timetable")}>
+            Generate Another Timetable
+          </button>
         </div>
       </div>
-      
+
+      {/* Timetable Grid */}
       <div className="timetable">
         <table>
           <thead>
             <tr>
               <th>Time</th>
-              {days.map(day => (
+              {days.map((day) => (
                 <th key={day}>{day}</th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {timeSlots.map(timeSlot => (
+            {timeSlots.map((timeSlot) => (
               <tr key={timeSlot}>
                 <td>{timeSlot}</td>
-                {days.map(day => (
+                {days.map((day) => (
                   <td key={`${day}-${timeSlot}`}>
-                    {timetable.schedule[day][timeSlot].length > 0 ? (
+                    {timetable.schedule?.[day]?.[timeSlot]?.length > 0 ? (
                       timetable.schedule[day][timeSlot].map((item, index) => (
                         <div key={index} className="timetable-cell">
                           <div className="course-name">{item.courseName}</div>
@@ -74,7 +87,8 @@ function TimetableDisplay({ timetable }) {
           </tbody>
         </table>
       </div>
-      
+
+      {/* Save Confirmation Modal */}
       {showSaveModal && (
         <div className="modal">
           <div className="modal-content">
