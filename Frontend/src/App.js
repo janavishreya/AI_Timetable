@@ -3,8 +3,9 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import AdminDashboard from "./components/admin/AdminDashboard";
-import TimetableGenerator from "./components/admin/pages/TimetableGenerator"; // Only this is used
+import TimetableGenerator from "./components/admin/pages/TimetableGenerator";
 import TimetableDisplay from "./components/admin/pages/TimetableDisplay";
+import AdminProfile from "./components/admin/pages/AdminProfile";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -69,7 +70,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Public Routes */}
+        {/* Public Route */}
         <Route
           path="/"
           element={
@@ -89,8 +90,25 @@ function App() {
           }
         />
 
+        {/* Admin Profile Route */}
+        <Route
+          path="/admin-profile"
+          element={
+            isLoggedIn && userType === "admin" ? (
+              <AdminDashboard user={user} onLogout={handleLogout}>
+                <AdminProfile user={user} />
+              </AdminDashboard>
+            ) : (
+              <Login onLogin={handleLogin} />
+            )
+          }
+        />
+
         {/* Timetable Display Route */}
-        <Route path="/timetable-display" element={<TimetableDisplay />} />
+        <Route
+          path="/timetable-display"
+          element={<TimetableDisplay />}
+        />
       </Routes>
     </Router>
   );

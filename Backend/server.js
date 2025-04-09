@@ -8,6 +8,7 @@ const bodyParser = require("body-parser");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const timetableRoutes = require("./routes/timetableRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 require("dotenv").config();
 const { exec } = require("child_process");
 
@@ -57,6 +58,7 @@ app.use(
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/timetable", timetableRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.get("/", (req, res) => res.send("✅ Server Running..."));
 
