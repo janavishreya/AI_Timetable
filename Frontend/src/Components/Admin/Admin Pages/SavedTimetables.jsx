@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { savedTimetables } from '../../../data/adminData';
+import { savedTimetables } from '../../../Data/adminData';
 
 function SavedTimetables({ onViewTimetable }) {
   const [filter, setFilter] = useState('all');

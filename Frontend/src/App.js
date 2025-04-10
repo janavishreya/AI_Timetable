@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Login from "./components/Login";
-import Dashboard from "./components/Dashboard";
-import AdminDashboard from "./components/admin/AdminDashboard";
-import TimetableGenerator from "./components/admin/pages/TimetableGenerator";
-import TimetableDisplay from "./components/admin/pages/TimetableDisplay";
-import AdminProfile from "./components/admin/pages/AdminProfile";
+import Login from "./Components/Login";
+import Dashboard from "./Components/Faculty/Dashboard";
+import AdminDashboard from "./Components/Admin/AdminDashboard";
+import TimetableGenerator from "./Components/Admin/Admin Pages/TimetableGenerator";
+import TimetableDisplay from "./Components/Admin/Admin Pages/TimetableDisplay";
+import AdminProfile from "./Components/Admin/Admin Pages/AdminProfile";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

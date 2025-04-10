@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { coursesData } from '../../data/facultyData';
+import { coursesData } from '../../../Data/facultyData';
 
 function ScheduleChange() {
   const [selectedCourse, setSelectedCourse] = useState('');

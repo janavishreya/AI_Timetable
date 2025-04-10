@@ -7,7 +7,6 @@ const helmet = require("helmet");
 const bodyParser = require("body-parser");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
-const timetableRoutes = require("./routes/timetableRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 require("dotenv").config();
 const { exec } = require("child_process");
@@ -23,6 +22,7 @@ connectDB();
 // Allowed origins for CORS
 const allowedOrigins = ["http://localhost:3000"];
 const app = express();
+app.use(express.json());
 
 app.use(
   cors({
@@ -57,7 +57,6 @@ app.use(
 
 // Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/timetable", timetableRoutes);
 app.use("/api/admin", adminRoutes);
 
 app.get("/", (req, res) => res.send("✅ Server Running..."));

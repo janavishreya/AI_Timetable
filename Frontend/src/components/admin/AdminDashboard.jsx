@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import AdminSidebar from './AdminSidebar';
-import AdminHome from './pages/AdminHome';
-import TimetableGenerator from './pages/TimetableGenerator';
-import TimetableDisplay from './pages/TimetableDisplay';
-import SavedTimetables from './pages/SavedTimetables';
-import AdminProfile from './pages/AdminProfile';
+import AdminHome from './Admin Pages/AdminHome';
+import TimetableGenerator from './Admin Pages/TimetableGenerator';
+import TimetableDisplay from './Admin Pages/TimetableDisplay';
+import SavedTimetables from './Admin Pages/SavedTimetables';
+import AdminProfile from './Admin Pages/AdminProfile';
 
 function AdminDashboard({ user, onLogout }) {
   const [activePage, setActivePage] = useState('dashboard');

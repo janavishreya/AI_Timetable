@@ -1,5 +1,5 @@
 import React from 'react';
-import { coursesData } from '../../data/facultyData';
+import { coursesData } from '../../../Data/facultyData';
 
 function Courses() {
   return (

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import Sidebar from './Sidebar';
-import DashboardHome from './pages/DashboardHome';
-import Timetable from './pages/Timetable';
-import Courses from './pages/Courses';
-import ScheduleChange from './pages/ScheduleChange';
-import Profile from './pages/Profile';
+import DashboardHome from './Pages/DashboardHome';
+import Timetable from './Pages/Timetable';
+import Courses from './Pages/Courses';
+import ScheduleChange from './Pages/ScheduleChange';
+import Profile from './Pages/Profile';
 
 function Dashboard({ user, onLogout }) {
   const [activePage, setActivePage] = useState('dashboard');

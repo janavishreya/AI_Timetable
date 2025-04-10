@@ -1,5 +1,5 @@
 import React from 'react';
-import { savedTimetables, facultyMembers, courses } from '../../../data/adminData';
+import { savedTimetables, facultyMembers, courses } from '../../../Data/adminData';
 
 function AdminHome() {
   // Calculate some statistics for the dashboard
